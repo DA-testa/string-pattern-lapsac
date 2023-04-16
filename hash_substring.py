@@ -1,6 +1,7 @@
 # python3
 
 B = 13
+Q = 256
 
 def read_input():
     teksts = input()
@@ -17,21 +18,34 @@ def read_input():
             string = f.readline().strip()
     
     return (patt, string)
-    
-    # this is the sample return, notice the rstrip function
-    return (input().rstrip(), input().rstrip())
 
 def print_occurrences(output):
-    # this function should control output, it doesn't need any return
     print(' '.join(map(str, output)))
 
 def get_occurrences(patt, text):
     patt = len(patt)
     txt = len(text)
+    
+    pattern_hash = 0
+    for i in range(patt):
+        pattern_hash = pattern_hash * B + ord(patt[i]) % Q
 
-    # this function should find the occurances using Rabin Karp alghoritm 
-    # and return an iterable variable
-    return [0]
+    text_hash = 0
+    for i in range(patt):
+        txt_hash = (txt_hash * B + ord(txt[i])) % Q   
+    
+    gadijumi = []
+
+    for i in range(txt - patt +1):
+        if pattern_hash == text_hash and patt == txt[i:i+patt]:
+            gadijumi.append(i)
+        if i < txt - patt:
+            text_hash = ((text_hash - ord(text[i]) * pow(B, patt-1, Q)) * B + ord(text[i+patt])) % Q
+
+    if gadijumi:
+        return gadijumi
+    else:
+        return [0]
 
 if __name__ == '__main__':
     print_occurrences(get_occurrences(*read_input()))
