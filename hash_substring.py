@@ -1,32 +1,51 @@
-# python3
-
 def read_input():
-    # this function needs to aquire input both from keyboard and file
-    # as before, use capital i (input from keyboard) and capital f (input from file) to choose which input type will follow
-    
-    
-    # after input type choice
-    # read two lines 
-    # first line is pattern 
-    # second line is text in which to look for pattern 
-    
-    # return both lines in one return
-    
-    # this is the sample return, notice the rstrip function
+    inp = input()
+    if "F" in inp:
+        path = "./tests/" + "06"
+        with open(path, "r") as file:
+            pattern = file.readline().rstrip()
+            text = file.readline().rstrip()
+            return (pattern, text)
+    if "I" in inp:
+        pattern = input().rstrip()
+        text = input().rstrip()
+        return (pattern, text)
     return (input().rstrip(), input().rstrip())
 
-def print_occurrences(output):
-    # this function should control output, it doesn't need any return
+def print_results(output):
     print(' '.join(map(str, output)))
 
-def get_occurrences(pattern, text):
-    # this function should find the occurances using Rabin Karp alghoritm 
+def rabin_karp(pattern: str, text: str) -> list:
+    B = 13
+    Q = 256
 
-    # and return an iterable variable
-    return [0]
+    patt = len(pattern)
+    txt = len(text)
 
+    multiplier = 1
+    for i in range(1, patt):
+        multiplier = (multiplier * B) % Q
 
-# this part launches the functions
+    pattern_hash = hash_str(pattern)
+    text_hash = hash_str(text[:patt])
+
+    results = []
+    for i in range(txt - patt + 1):
+        if pattern_hash == text_hash:
+            if pattern == text[i:i+patt]:
+                results.append(i)
+        if i < txt - patt:
+            text_hash = ((text_hash - ord(text[i]) * multiplier) * B + ord(text[i+patt])) % Q
+
+    return results
+
+def hash_str(string: str) -> int:
+    B = 13
+    Q = 256
+    result = 0
+    for i in range(len(string)):
+        result = (B * result + ord(string[i])) % Q
+    return result
+
 if __name__ == '__main__':
-    print_occurrences(get_occurrences(*read_input()))
-
+    print_results(rabin_karp(*read_input()))
