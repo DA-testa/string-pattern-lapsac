@@ -1,52 +1,51 @@
-# python3
-
-B = 13
-Q = 256
-
 def read_input():
-    teksts = input()
-    patt = ""
-    string = ""
+    inp = input()
+    if "F" in inp:
+        path = "./tests/" + "06"
+        with open(path, "r") as file:
+            pattern = file.readline().rstrip()
+            text = file.readline().rstrip()
+            return (pattern, text)
+    if "I" in inp:
+        pattern = input().rstrip()
+        text = input().rstrip()
+        return (pattern, text)
+    return (input().rstrip(), input().rstrip())
 
-    if "I" in teksts:
-        patt = input().strip()
-        string = input().strip()
-    elif "F" in teksts: 
-        f = input().strip()
-        with open("tests/" +f, 'r') as f:
-            patt = f.readline().strip()
-            string = f.readline().strip()
-    
-    return (patt, string)
-
-def print_occurrences(output):
+def print_results(output):
     print(' '.join(map(str, output)))
 
-def get_occurrences(patt, text):
-    patt = len(patt)
+def rabin_karp(pattern: str, text: str) -> list:
+    B = 13
+    Q = 256
+
+    patt = len(pattern)
     txt = len(text)
-    
-    pattern_hash = 0
-    for i in range(patt):
-        pattern_hash = pattern_hash * B + ord(patt[i]) % Q
 
-    text_hash = 0
-    for i in range(patt):
-        txt_hash = (txt_hash * B + ord(txt[i])) % Q   
-    
-    gadijumi = []
+    multiplier = 1
+    for i in range(1, patt):
+        multiplier = (multiplier * B) % Q
 
-    for i in range(txt - patt +1):
-        if pattern_hash == text_hash and patt == txt[i:i+patt]:
-            gadijumi.append(i)
+    pattern_hash = hash_str(pattern)
+    text_hash = hash_str(text[:patt])
+
+    results = []
+    for i in range(txt - patt + 1):
+        if pattern_hash == text_hash:
+            if pattern == text[i:i+patt]:
+                results.append(i)
         if i < txt - patt:
-            text_hash = ((text_hash - ord(text[i]) * pow(B, patt-1, Q)) * B + ord(text[i+patt])) % Q
+            text_hash = ((text_hash - ord(text[i]) * multiplier) * B + ord(text[i+patt])) % Q
 
-    if gadijumi:
-        return gadijumi
-    else:
-        return [0]
+    return results
+
+def hash_str(string: str) -> int:
+    B = 13
+    Q = 256
+    result = 0
+    for i in range(len(string)):
+        result = (B * result + ord(string[i])) % Q
+    return result
 
 if __name__ == '__main__':
-    print_occurrences(get_occurrences(*read_input()))
-
+    print_results(rabin_karp(*read_input()))
